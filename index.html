@@ -2,8 +2,8 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>圆形打地鼠 - 优化版</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>打地鼠·可爱无尽版</title>
     <link rel="manifest" href="./manifest.json">
     <style>
         * {
@@ -11,11 +11,12 @@
             padding: 0;
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
+            user-select: none;
         }
         
         body {
-            font-family: 'Arial Rounded MT Bold', Arial, sans-serif;
-            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            font-family: 'Arial Rounded MT Bold', 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #0a6b4d, #2a9d8f, #e9c46a);
             color: white;
             height: 100vh;
             display: flex;
@@ -28,34 +29,32 @@
         
         .container {
             width: 100%;
-            max-width: 500px;
+            max-width: 540px;
             display: flex;
             flex-direction: column;
             align-items: center;
             text-align: center;
+            backdrop-filter: blur(2px);
         }
         
         h1 {
-            font-size: 2.2rem;
-            margin-bottom: 5px;
-            color: #FFD700;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-        }
-        
-        .subtitle {
-            font-size: 0.9rem;
-            margin-bottom: 10px;
-            opacity: 0.9;
+            font-size: 2rem;
+            margin-bottom: 2px;
+            color: #FFF3B0;
+            text-shadow: 3px 3px 0 #b76e2e;
+            letter-spacing: 2px;
         }
         
         .stats {
             display: flex;
             justify-content: space-around;
             width: 100%;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 15px;
-            padding: 12px;
-            margin-bottom: 10px;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(8px);
+            border-radius: 40px;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            border: 1px solid rgba(255,215,0,0.3);
         }
         
         .stat-box {
@@ -65,31 +64,37 @@
         }
         
         .stat-value {
-            font-size: 1.6rem;
+            font-size: 1.8rem;
             font-weight: bold;
-            color: #FFD700;
+            color: #FFE484;
+            line-height: 1;
         }
         
         .stat-label {
-            font-size: 0.7rem;
-            opacity: 0.8;
+            font-size: 0.65rem;
+            opacity: 0.9;
         }
         
         .combo-display {
-            font-size: 0.9rem;
-            color: #FF6B6B;
+            font-size: 1rem;
             font-weight: bold;
-            margin-top: 5px;
-            height: 20px;
+            color: #ffaa66;
+            text-shadow: 0 0 4px red;
+            margin-top: 4px;
+            height: 28px;
+            letter-spacing: 1px;
         }
         
         .game-board {
             position: relative;
-            width: 95vw;
-            height: 95vw;
-            max-width: 380px;
-            max-height: 380px;
-            margin: 10px 0;
+            width: 92vw;
+            height: 92vw;
+            max-width: 420px;
+            max-height: 420px;
+            margin: 6px 0;
+            background: radial-gradient(circle at 30% 20%, rgba(76, 48, 25, 0.4), rgba(0,0,0,0.2));
+            border-radius: 50%;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
         }
         
         .circle {
@@ -97,970 +102,812 @@
             width: 100%;
             height: 100%;
             border-radius: 50%;
-            background: rgba(0, 0, 0, 0.1);
-            border: 5px solid rgba(255, 215, 0, 0.5);
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+            background: transparent;
+            border: 3px solid rgba(255, 215, 0, 0.7);
+            box-shadow: 0 0 15px gold;
+            pointer-events: none;
         }
         
+        /* 地鼠洞 - 溢出隐藏，保证看不见未出洞的地鼠 */
         .hole {
             position: absolute;
-            width: 75px;
-            height: 75px;
+            width: 70px;
+            height: 70px;
             border-radius: 50%;
-            background: radial-gradient(circle, #5D4037, #3E2723);
-            box-shadow: inset 0 5px 10px rgba(0, 0, 0, 0.7), 0 3px 5px rgba(0, 0, 0, 0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            background: radial-gradient(circle at 35% 35%, #8B5A2B, #4E2E1A);
+            box-shadow: inset 0 6px 8px rgba(0, 0, 0, 0.8), 0 4px 6px rgba(0,0,0,0.4);
             cursor: pointer;
-            transition: transform 0.1s;
+            transition: transform 0.05s linear;
             z-index: 1;
+            overflow: hidden;
+            will-change: transform;
         }
         
         .hole:active {
-            transform: scale(0.95);
+            transform: scale(0.96);
         }
         
+        /* 可爱地鼠 - 绝对定位，初始藏在洞底 */
         .mole {
-            width: 65px;
-            height: 70px;
-            background: #8B4513;
-            border-radius: 50% 50% 40% 40%;
-            position: relative;
-            top: 40px;
-            opacity: 0;
-            transition: top 0.2s, opacity 0.2s;
+            position: absolute;
+            width: 90%;
+            height: 82%;
+            bottom: -100%;
+            left: 5%;
+            background: #D9A066;
+            border-radius: 55% 55% 45% 45%;
+            transition: bottom 0.12s cubic-bezier(0.2, 0.9, 0.4, 1.1);
             cursor: pointer;
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+            will-change: bottom;
         }
         
         .mole.show {
-            top: -5px;
-            opacity: 1;
+            bottom: 0;
         }
         
+        /* 地鼠大眼睛 */
         .mole::before {
             content: "";
             position: absolute;
-            top: -10px;
-            left: 12px;
-            width: 40px;
-            height: 25px;
-            background: #8B4513;
-            border-radius: 50% 50% 40% 40%;
+            top: 20px;
+            left: 14px;
+            width: 14px;
+            height: 14px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 28px 0 white;
+            z-index: 2;
         }
         
+        /* 瞳孔 */
         .mole::after {
             content: "";
             position: absolute;
-            top: -5px;
-            left: 15px;
-            width: 10px;
-            height: 10px;
-            background: white;
+            top: 23px;
+            left: 17px;
+            width: 7px;
+            height: 7px;
+            background: #222;
             border-radius: 50%;
-            box-shadow: 20px 0 white, 5px -5px 0 2px black, 25px -5px 0 2px black;
+            box-shadow: 28px 0 #222;
+            z-index: 3;
         }
         
+        /* 腮红 */
+        .blush {
+            position: absolute;
+            bottom: 12px;
+            width: 12px;
+            height: 8px;
+            background: #FFAAAA;
+            border-radius: 50%;
+            opacity: 0.7;
+            filter: blur(1px);
+            pointer-events: none;
+        }
+        
+        .blush.left {
+            left: 8px;
+        }
+        
+        .blush.right {
+            right: 8px;
+        }
+        
+        /* 胡须 */
+        .whisker {
+            position: absolute;
+            bottom: 18px;
+            width: 14px;
+            height: 2px;
+            background: #5C3E1F;
+            border-radius: 2px;
+            transform: rotate(10deg);
+            pointer-events: none;
+        }
+        
+        .whisker.left1 { left: 0px; transform: rotate(-10deg); }
+        .whisker.left2 { left: 2px; bottom: 22px; transform: rotate(-20deg); width: 12px; }
+        .whisker.right1 { right: 0px; transform: rotate(10deg); }
+        .whisker.right2 { right: 2px; bottom: 22px; transform: rotate(20deg); width: 12px; }
+        
+        /* 击中特效 */
         .hit-effect {
             position: absolute;
-            width: 80px;
-            height: 80px;
+            width: 70px;
+            height: 70px;
             border-radius: 50%;
-            background-color: rgba(255, 215, 0, 0.7);
+            background: radial-gradient(circle, rgba(255,220,80,0.9), rgba(255,100,0,0.6));
             pointer-events: none;
-            animation: hit 0.5s ease-out;
-            z-index: 100;
+            animation: hitPop 0.45s ease-out forwards;
+            z-index: 200;
         }
         
-        @keyframes hit {
-            0% { transform: scale(0.5); opacity: 1; }
+        @keyframes hitPop {
+            0% { transform: scale(0.3); opacity: 1; }
             100% { transform: scale(1.8); opacity: 0; }
         }
         
         .game-controls {
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             width: 100%;
-            margin-top: 10px;
-        }
-        
-        .action-buttons {
-            display: flex;
-            gap: 10px;
+            margin-top: 6px;
+            gap: 15px;
         }
         
         .action-btn {
-            padding: 12px 20px;
+            padding: 10px 20px;
             border: none;
-            border-radius: 12px;
+            border-radius: 60px;
             font-size: 1rem;
             font-weight: bold;
             cursor: pointer;
-            transition: transform 0.2s, background 0.3s;
+            background: linear-gradient(135deg, #2b5876, #1e3c5c);
             color: white;
-            min-width: 100px;
+            min-width: 110px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            transition: all 0.1s ease;
         }
         
         .action-btn:active {
-            transform: scale(0.95);
+            transform: scale(0.96);
         }
         
         .start-btn {
-            background: linear-gradient(to right, #00b09b, #96c93d);
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            box-shadow: 0 0 8px #38ef7d;
         }
         
         .settings-btn {
-            background: linear-gradient(to right, #8E2DE2, #4A00E0);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-        }
-        
-        .settings-btn i {
-            font-size: 1.2rem;
+            background: linear-gradient(135deg, #8E2DE2, #4A00E0);
         }
         
         .difficulty-buttons {
             display: flex;
-            gap: 8px;
+            gap: 10px;
             justify-content: center;
             flex-wrap: wrap;
-            margin-top: 10px;
+            margin: 6px 0 4px;
         }
         
         .difficulty-btn {
-            padding: 8px 12px;
+            padding: 6px 14px;
             border: none;
-            border-radius: 8px;
-            font-size: 0.85rem;
+            border-radius: 40px;
             font-weight: bold;
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
+            background: rgba(0, 0, 0, 0.5);
+            color: #ffecb3;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.2s;
+            backdrop-filter: blur(4px);
+            font-size: 0.8rem;
         }
         
         .difficulty-btn.active {
-            background: #FFD700;
-            color: #333;
-            transform: scale(1.05);
+            background: #FFB347;
+            color: #2c1a00;
+            box-shadow: 0 0 8px orange;
+        }
+        
+        .difficulty-btn:disabled {
+            opacity: 0.5;
+            transform: none;
+            cursor: not-allowed;
+            filter: grayscale(0.2);
         }
         
         .instructions {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 10px;
-            padding: 12px;
-            margin-top: 15px;
-            font-size: 0.8rem;
-            line-height: 1.4;
-            width: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 24px;
+            padding: 8px 12px;
+            margin-top: 10px;
+            font-size: 0.7rem;
+            width: 90%;
         }
         
-        .instructions h3 {
-            color: #FFD700;
-            margin-bottom: 8px;
-        }
-        
-        /* 设置面板样式 */
+        /* 设置面板 */
         .settings-panel {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.9);
+            background: rgba(0, 0, 0, 0.92);
             display: none;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
             z-index: 1000;
-            padding: 20px;
+            backdrop-filter: blur(12px);
         }
         
         .settings-content {
-            background: linear-gradient(135deg, #2c3e50, #4a6491);
-            border-radius: 20px;
+            background: linear-gradient(145deg, #1f2b3c, #0f1a2a);
+            border-radius: 36px;
             padding: 25px;
-            width: 90%;
-            max-width: 400px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            width: 88%;
+            max-width: 380px;
+            border: 1px solid gold;
         }
         
         .settings-header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
             margin-bottom: 20px;
-        }
-        
-        .settings-header h2 {
-            color: #FFD700;
-            font-size: 1.8rem;
         }
         
         .close-settings {
             background: none;
             border: none;
-            color: white;
-            font-size: 2rem;
+            font-size: 32px;
+            color: #ffd966;
             cursor: pointer;
-            width: 40px;
-            height: 40px;
+        }
+        
+        .setting-item {
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
+            margin: 15px 0;
+            color: white;
+        }
+        
+        .toggle-switch {
+            width: 50px;
+            height: 26px;
+            background: #555;
+            border-radius: 30px;
+            display: inline-block;
+            position: relative;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        
+        .toggle-switch.active {
+            background: #4caf50;
+        }
+        
+        .toggle-switch span {
+            position: absolute;
+            top: 3px;
+            left: 4px;
+            width: 20px;
+            height: 20px;
+            background: white;
             border-radius: 50%;
+            transition: 0.2s;
         }
         
-        .close-settings:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
-        
-        .settings-group {
-            margin-bottom: 20px;
-        }
-        
-        .settings-group h3 {
-            color: #FFD700;
-            margin-bottom: 10px;
-            font-size: 1.2rem;
+        .toggle-switch.active span {
+            left: 26px;
         }
         
         .hole-count-control {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            margin-bottom: 15px;
-        }
-        
-        .hole-count-slider {
-            width: 70%;
-            height: 10px;
-            -webkit-appearance: none;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 5px;
-            outline: none;
-        }
-        
-        .hole-count-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 25px;
-            height: 25px;
-            border-radius: 50%;
-            background: #FFD700;
-            cursor: pointer;
-        }
-        
-        .hole-count-value {
-            font-weight: bold;
-            font-size: 1.2rem;
-            min-width: 40px;
-            text-align: center;
+            gap: 12px;
+            margin: 12px 0;
         }
         
         .layout-buttons {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(2,1fr);
             gap: 10px;
+            margin: 12px 0;
         }
         
-        .layout-btn {
-            padding: 12px;
+        .layout-btn, .apply-settings {
+            background: #2c3e66;
             border: none;
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 60px;
             color: white;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.3s;
+            font-weight: bold;
         }
         
         .layout-btn.active {
-            background: #FFD700;
-            color: #333;
-            transform: scale(1.05);
+            background: #ffb347;
+            color: black;
         }
         
         .apply-settings {
+            background: #00b09b;
             width: 100%;
-            padding: 15px;
-            border: none;
-            border-radius: 12px;
-            background: linear-gradient(to right, #00b09b, #96c93d);
-            color: white;
-            font-size: 1.1rem;
-            font-weight: bold;
-            cursor: pointer;
             margin-top: 20px;
         }
         
         .game-over {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
             display: none;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            z-index: 100;
-            padding: 20px;
+            inset: 0;
+            z-index: 110;
         }
         
         .game-over h2 {
-            color: #FFD700;
+            color: gold;
             font-size: 2.5rem;
-            margin-bottom: 20px;
         }
         
         .final-score {
-            font-size: 4rem;
+            font-size: 3.5rem;
             font-weight: bold;
-            color: #00b09b;
-            margin: 20px 0;
+            color: #ffaa33;
         }
         
-        .restart-btn {
-            padding: 15px 30px;
-            background: linear-gradient(to right, #00b09b, #96c93d);
-            color: white;
-            border: none;
-            border-radius: 15px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 20px;
-        }
-        
-        @media (max-width: 400px) {
-            .game-board {
-                width: 90vw;
-                height: 90vw;
-                max-width: 350px;
-                max-height: 350px;
-            }
-            
-            .hole {
-                width: 65px;
-                height: 65px;
-            }
-            
-            .mole {
-                width: 55px;
-                height: 60px;
-            }
+        @media (max-width: 480px) {
+            .hole { width: 62px; height: 62px; }
+            .mole { width: 90%; height: 78%; }
+            .mole::before { top: 12px; left: 10px; width: 10px; height: 10px; box-shadow: 18px 0 white; }
+            .mole::after { top: 14px; left: 12px; width: 5px; height: 5px; box-shadow: 18px 0 #222; }
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <div class="container">
-        <h1>打地鼠</h1>
-        <p class="subtitle">点击冒出来的地鼠得分！</p>
-        
-        <div class="stats">
-            <div class="stat-box">
-                <div class="stat-value" id="score">0</div>
-                <div class="stat-label">得分</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-value" id="time">60</div>
-                <div class="stat-label">时间</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-value" id="high-score">0</div>
-                <div class="stat-label">最高分</div>
-            </div>
-        </div>
-        
-        <div class="combo-display" id="comboDisplay"></div>
-        
-        <div class="game-board">
-            <div class="circle"></div>
-            <!-- 地鼠洞将由JavaScript动态生成 -->
-        </div>
-        
-        <div class="difficulty-buttons">
-            <button class="difficulty-btn active" data-difficulty="easy">简单</button>
-            <button class="difficulty-btn" data-difficulty="medium">中等</button>
-            <button class="difficulty-btn" data-difficulty="hard">困难</button>
-            <button class="difficulty-btn" data-difficulty="insane">疯狂</button>
-        </div>
-        
-        <div class="game-controls">
-            <div class="action-buttons">
-                <button class="action-btn start-btn" id="startBtn">开始游戏</button>
-                <button class="action-btn settings-btn" id="settingsBtn">
-                    <i class="fas fa-cog"></i> 设置
-                </button>
-            </div>
-        </div>
-        
-        <div class="instructions">
-            <h3>游戏说明</h3>
-            <p>点击从洞里冒出来的地鼠得分，不同难度地鼠出现速度和停留时间不同，连续击中可获得额外分数！</p>
-        </div>
-        
-        <!-- 设置面板 -->
-        <div class="settings-panel" id="settingsPanel">
-            <div class="settings-content">
-                <div class="settings-header">
-                    <h2>游戏设置</h2>
-                    <button class="close-settings" id="closeSettings">&times;</button>
-                </div>
-                
-                <div class="settings-group">
-                    <h3>地鼠洞数量</h3>
-                    <div class="hole-count-control">
-                        <input type="range" min="4" max="16" value="8" class="hole-count-slider" id="holeCountSlider">
-                        <span class="hole-count-value" id="holeCountValue">8</span>
-                    </div>
-                </div>
-                
-                <div class="settings-group">
-                    <h3>布局样式</h3>
-                    <div class="layout-buttons">
-                        <button class="layout-btn active" data-layout="circle">圆形</button>
-                        <button class="layout-btn" data-layout="concentric">同心圆</button>
-                        <button class="layout-btn" data-layout="grid">网格</button>
-                        <button class="layout-btn" data-layout="random">随机</button>
-                    </div>
-                </div>
-                
-                <button class="apply-settings" id="applySettings">应用设置</button>
-            </div>
-        </div>
-        
-        <!-- 游戏结束画面 -->
-        <div class="game-over" id="gameOver">
-            <h2>游戏结束!</h2>
-            <p>你的最终得分:</p>
-            <div class="final-score" id="finalScore">0</div>
-            <p id="comboMessage"></p>
-            <button class="restart-btn" id="restartBtn">再玩一次</button>
-        </div>
+<div class="container">
+    <h1>🐹 打地鼠 · 可爱无限 🐹</h1>
+    <div class="stats">
+        <div class="stat-box"><div class="stat-value" id="score">0</div><div class="stat-label">得分</div></div>
+        <div class="stat-box" id="timerBox"><div class="stat-value" id="time">60</div><div class="stat-label">剩余秒</div></div>
+        <div class="stat-box"><div class="stat-value" id="high-score">0</div><div class="stat-label">最高纪录</div></div>
     </div>
+    <div class="combo-display" id="comboDisplay"></div>
+    <div class="game-board" id="gameBoard">
+        <div class="circle"></div>
+    </div>
+    <div class="difficulty-buttons" id="difficultyGroup">
+        <button class="difficulty-btn active" data-difficulty="easy">🍃 简单</button>
+        <button class="difficulty-btn" data-difficulty="medium">🌙 中等</button>
+        <button class="difficulty-btn" data-difficulty="hard">🔥 困难</button>
+        <button class="difficulty-btn" data-difficulty="insane">💀 疯狂</button>
+    </div>
+    <div class="game-controls">
+        <button class="action-btn start-btn" id="startBtn">▶ 开始游戏</button>
+        <button class="action-btn settings-btn" id="settingsBtn"><i class="fas fa-cog"></i> 设置</button>
+    </div>
+    <div class="instructions">
+        💥 点击冒头地鼠！连击加成，自然消失扣分，点空惩罚。设置可开启无尽模式 🔄
+    </div>
+</div>
 
-    <!-- 音频元素 -->
-    <audio id="hitSound">
-        <source src="https://assets.mixkit.co/sfx/preview/mixkit-retro-game-emergency-alarm-1000.mp3" type="audio/mpeg">
-    </audio>
-    <audio id="missSound">
-        <source src="https://assets.mixkit.co/sfx/preview/mixkit-game-ball-tap-2073.mp3" type="audio/mpeg">
-    </audio>
-    <audio id="comboSound">
-        <source src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3" type="audio/mpeg">
-    </audio>
+<!-- 设置面板 -->
+<div class="settings-panel" id="settingsPanel">
+    <div class="settings-content">
+        <div class="settings-header"><h2>⚙️ 游戏设置</h2><button class="close-settings" id="closeSettings">✖</button></div>
+        <div class="setting-item">
+            <span>🔊 音效开关</span>
+            <div class="toggle-switch" id="soundToggle"><span></span></div>
+        </div>
+        <div class="setting-item">
+            <span>📳 震动反馈</span>
+            <div class="toggle-switch" id="vibrateToggle"><span></span></div>
+        </div>
+        <div class="setting-item">
+            <span>🔄 无尽模式 (无限时间)</span>
+            <div class="toggle-switch" id="endlessToggle"><span></span></div>
+        </div>
+        <div class="settings-group"><h3>🐾 地鼠洞数量</h3><div class="hole-count-control"><input type="range" min="4" max="16" value="8" id="holeCountSlider"><span id="holeCountValue">8</span></div></div>
+        <div class="settings-group"><h3>🗺️ 布局风格</h3><div class="layout-buttons"><button class="layout-btn" data-layout="circle">圆形</button><button class="layout-btn" data-layout="concentric">同心圆</button><button class="layout-btn" data-layout="grid">网格</button><button class="layout-btn" data-layout="random">随机</button></div></div>
+        <button class="apply-settings" id="applySettings">✨ 应用并重开</button>
+    </div>
+</div>
 
-    <script>
-        // 游戏配置
-        const CONFIG = {
-            easy: { interval: 1500, visible: 1500, points: 10, time: 60 },
-            medium: { interval: 1000, visible: 1000, points: 15, time: 60 },
-            hard: { interval: 700, visible: 700, points: 20, time: 45 },
-            insane: { interval: 500, visible: 500, points: 25, time: 30 }
-        };
+<div class="game-over" id="gameOver"><h2>💀 GAME OVER 💀</h2><p>最终得分</p><div class="final-score" id="finalScore">0</div><p id="comboMessage"></p><button class="action-btn" id="restartBtn" style="background:#ff9800;">🔨 再来一局</button></div>
 
-        // 游戏状态
-        let score = 0;
-        let timeLeft = 60;
-        let highScore = localStorage.getItem('moleHighScore') || 0;
-        let isPlaying = false;
-        let currentDifficulty = 'easy';
-        let moleInterval;
-        let timerInterval;
-        let activeMoles = [];
-        let holeCount = 8;
-        let layoutType = 'circle';
-        let comboCount = 0;
-        let maxCombo = 0;
-        let pendingSettings = { holeCount: 8, layoutType: 'circle' };
+<script>
+    // ----------------------------- 游戏配置 ----------------------------------
+    const CONFIG = {
+        easy: { interval: 1400, visible: 1400, points: 10, time: 60 },
+        medium: { interval: 950, visible: 950, points: 15, time: 60 },
+        hard: { interval: 650, visible: 650, points: 20, time: 45 },
+        insane: { interval: 460, visible: 460, points: 25, time: 30 }
+    };
+    const ESCAPE_PENALTY = 3;
+    const MISS_PENALTY = 5;
+    const COMBO_TIMEOUT_MS = 1800;
+    
+    // 音效/震动开关
+    let soundEnabled = true;
+    let vibrateEnabled = true;
+    let endlessMode = false;
+    
+    // 游戏状态
+    let score = 0;
+    let timeLeft = 60;
+    let highScore = localStorage.getItem('moleHighScore') || 0;
+    let isPlaying = false;
+    let currentDifficulty = 'easy';
+    let moleInterval = null;
+    let timerInterval = null;
+    let activeMoles = [];
+    let holeCount = 8;
+    let layoutType = 'circle';
+    let comboCount = 0;
+    let maxCombo = 0;
+    let comboTimeoutId = null;
+    let moleTimeouts = new Map();
+    let pendingSettings = { holeCount: 8, layoutType: 'circle', endless: false, sound: true, vibrate: true };
+    let settingsResumeFlag = false;
+    let resizeDebounce = null;
+    
+    // DOM
+    const scoreEl = document.getElementById('score');
+    const timeEl = document.getElementById('time');
+    const highScoreEl = document.getElementById('high-score');
+    const startBtn = document.getElementById('startBtn');
+    const settingsBtn = document.getElementById('settingsBtn');
+    const gameOverScreen = document.getElementById('gameOver');
+    const finalScoreEl = document.getElementById('finalScore');
+    const restartBtn = document.getElementById('restartBtn');
+    const difficultyBtns = document.querySelectorAll('.difficulty-btn');
+    const gameBoard = document.querySelector('.game-board');
+    const settingsPanel = document.getElementById('settingsPanel');
+    const closeSettingsBtn = document.getElementById('closeSettings');
+    const holeCountSlider = document.getElementById('holeCountSlider');
+    const holeCountValue = document.getElementById('holeCountValue');
+    const layoutBtns = document.querySelectorAll('.layout-btn');
+    const applySettingsBtn = document.getElementById('applySettings');
+    const comboDisplay = document.getElementById('comboDisplay');
+    const comboMessageSpan = document.getElementById('comboMessage');
+    const timerBox = document.getElementById('timerBox');
+    const soundToggle = document.getElementById('soundToggle');
+    const vibrateToggle = document.getElementById('vibrateToggle');
+    const endlessToggle = document.getElementById('endlessToggle');
+    
+    // 音频对象
+    const hitSound = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-retro-game-emergency-alarm-1000.mp3');
+    const missSound = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-game-ball-tap-2073.mp3');
+    const comboSound = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3');
+    [hitSound, missSound, comboSound].forEach(a => { a.volume = 0.5; a.preload = 'auto'; });
+    
+    // 辅助函数
+    function updateUI() {
+        scoreEl.textContent = Math.floor(score);
+        if (!endlessMode) timeEl.textContent = timeLeft;
+        else timeEl.textContent = '∞';
+        highScoreEl.textContent = highScore;
+        if (comboCount > 1) comboDisplay.textContent = `✨ ${comboCount} 连击！ +${comboCount*2}分 ✨`;
+        else comboDisplay.textContent = '';
+    }
+    
+    function resetComboTimer() {
+        if (comboTimeoutId) clearTimeout(comboTimeoutId);
+        comboTimeoutId = setTimeout(() => {
+            if (comboCount > 0 && isPlaying) {
+                comboCount = 0;
+                updateUI();
+                if (comboDisplay) comboDisplay.textContent = '💔 连击中断';
+                setTimeout(() => { if(comboDisplay && !comboCount) comboDisplay.textContent = ''; }, 600);
+            }
+        }, COMBO_TIMEOUT_MS);
+    }
+    
+    function breakCombo() {
+        if (comboTimeoutId) clearTimeout(comboTimeoutId);
+        comboCount = 0;
+        updateUI();
+        comboDisplay.textContent = '';
+    }
+    
+    function vibrateLight() {
+        if (vibrateEnabled && window.navigator && window.navigator.vibrate) window.navigator.vibrate(18);
+    }
+    function playHit() { if(soundEnabled) { hitSound.currentTime = 0; hitSound.play().catch(e=>console.log); } vibrateLight(); }
+    function playMiss() { if(soundEnabled) { missSound.currentTime = 0; missSound.play().catch(e=>console.log); } vibrateLight(); }
+    function playComboBonus() { if(soundEnabled) { comboSound.currentTime = 0; comboSound.play().catch(e=>console.log); } }
+    
+    function setDifficultyButtonsEnabled(enabled) {
+        difficultyBtns.forEach(btn => enabled ? btn.removeAttribute('disabled') : btn.setAttribute('disabled', 'disabled'));
+    }
+    
+    function clearAllMolesAndTimeouts() {
+        if (moleTimeouts.size) { for (let [idx, tid] of moleTimeouts.entries()) clearTimeout(tid); moleTimeouts.clear(); }
+        document.querySelectorAll('.mole').forEach(m => m.classList.remove('show'));
+        activeMoles = [];
+    }
+    
+    function stopGameLoops() {
+        if (moleInterval) clearInterval(moleInterval);
+        if (timerInterval) clearInterval(timerInterval);
+        moleInterval = null;
+        timerInterval = null;
+    }
+    
+    function scheduleMoleHide(index, moleEl) {
+        if (moleTimeouts.has(index)) clearTimeout(moleTimeouts.get(index));
+        const timeoutId = setTimeout(() => {
+            if (moleEl && moleEl.classList.contains('show') && isPlaying) {
+                moleEl.classList.remove('show');
+                activeMoles = activeMoles.filter(i => i !== index);
+                score = Math.max(0, score - ESCAPE_PENALTY);
+                breakCombo();
+                updateUI();
+                playMiss();
+                const displayDiv = comboDisplay;
+                if (displayDiv) {
+                    const original = displayDiv.textContent;
+                    displayDiv.textContent = `😤 逃脱 -${ESCAPE_PENALTY}`;
+                    setTimeout(() => { if (displayDiv && displayDiv.textContent.includes('逃脱')) displayDiv.textContent = original; }, 400);
+                }
+            }
+            moleTimeouts.delete(index);
+        }, CONFIG[currentDifficulty].visible);
+        moleTimeouts.set(index, timeoutId);
+    }
+    
+    function handleMoleClick(index) {
+        if (!isPlaying) return;
+        const mole = document.querySelector(`.mole[data-index="${index}"]`);
+        if (!mole || !mole.classList.contains('show')) {
+            score = Math.max(0, score - MISS_PENALTY);
+            breakCombo();
+            updateUI();
+            playMiss();
+            const parent = mole ? mole.parentElement : null;
+            if(parent) {
+                const fx = document.createElement('div');
+                fx.className = 'hit-effect';
+                fx.style.background = 'radial-gradient(circle, rgba(255,80,80,0.7), rgba(200,0,0,0.5))';
+                parent.appendChild(fx);
+                setTimeout(()=>fx.remove(), 350);
+            }
+            return;
+        }
+        const parentHole = mole.parentElement;
+        mole.classList.remove('show');
+        activeMoles = activeMoles.filter(i => i !== index);
+        if (moleTimeouts.has(index)) { clearTimeout(moleTimeouts.get(index)); moleTimeouts.delete(index); }
+        comboCount++;
+        if (comboCount > maxCombo) maxCombo = comboCount;
+        resetComboTimer();
+        const basePoints = CONFIG[currentDifficulty].points;
+        const comboBonus = comboCount > 1 ? comboCount * 2 : 0;
+        const totalGain = basePoints + comboBonus;
+        score += totalGain;
+        if (score > highScore) { highScore = score; localStorage.setItem('moleHighScore', highScore); }
+        updateUI();
+        playHit();
+        if (comboCount >= 3 && (comboCount % 3 === 0 || comboCount === 3)) playComboBonus();
         
-        // DOM元素
-        const scoreEl = document.getElementById('score');
-        const timeEl = document.getElementById('time');
-        const highScoreEl = document.getElementById('high-score');
-        const startBtn = document.getElementById('startBtn');
-        const settingsBtn = document.getElementById('settingsBtn');
-        const gameOverScreen = document.getElementById('gameOver');
-        const finalScoreEl = document.getElementById('finalScore');
-        const restartBtn = document.getElementById('restartBtn');
-        const difficultyBtns = document.querySelectorAll('.difficulty-btn');
-        const gameBoard = document.querySelector('.game-board');
-        const settingsPanel = document.getElementById('settingsPanel');
-        const closeSettingsBtn = document.getElementById('closeSettings');
-        const holeCountSlider = document.getElementById('holeCountSlider');
-        const holeCountValue = document.getElementById('holeCountValue');
-        const layoutBtns = document.querySelectorAll('.layout-btn');
-        const applySettingsBtn = document.getElementById('applySettings');
-        const comboDisplay = document.getElementById('comboDisplay');
-        const comboMessage = document.getElementById('comboMessage');
+        const hitEffect = document.createElement('div');
+        hitEffect.className = 'hit-effect';
+        parentHole.appendChild(hitEffect);
+        setTimeout(() => hitEffect.remove(), 450);
         
-        // 音频元素
-        const hitSound = document.getElementById('hitSound');
-        const missSound = document.getElementById('missSound');
-        const comboSound = document.getElementById('comboSound');
-        
-        // 初始化游戏
-        function initGame() {
-            // 重置状态
-            score = 0;
-            timeLeft = CONFIG[currentDifficulty].time;
+        const floatText = document.createElement('div');
+        floatText.innerText = `+${totalGain}`;
+        floatText.style.position = 'absolute';
+        floatText.style.left = '20px';
+        floatText.style.top = '-15px';
+        floatText.style.fontSize = '20px';
+        floatText.style.fontWeight = 'bold';
+        floatText.style.color = '#FFD966';
+        floatText.style.textShadow = '1px 1px 0 black';
+        floatText.style.pointerEvents = 'none';
+        floatText.style.zIndex = '99';
+        floatText.style.animation = 'hitPop 0.4s ease-out forwards';
+        parentHole.appendChild(floatText);
+        setTimeout(() => floatText.remove(), 500);
+    }
+    
+    function showRandomMole() {
+        if (!isPlaying) return;
+        const moles = document.querySelectorAll('.mole');
+        if (moles.length === 0) return;
+        const available = Array.from(moles.keys()).filter(idx => !activeMoles.includes(idx));
+        if (available.length === 0) return;
+        const randIdx = available[Math.floor(Math.random() * available.length)];
+        const mole = moles[randIdx];
+        if (mole.classList.contains('show')) return;
+        mole.classList.add('show');
+        activeMoles.push(randIdx);
+        scheduleMoleHide(randIdx, mole);
+    }
+    
+    function createHoles() {
+        const existingHoles = document.querySelectorAll('.hole:not(.circle)');
+        existingHoles.forEach(h => h.remove());
+        const boardRect = gameBoard.getBoundingClientRect();
+        const boardWidth = boardRect.width;
+        const boardHeight = boardRect.height;
+        const centerX = boardWidth / 2;
+        const centerY = boardHeight / 2;
+        const radius = Math.min(boardWidth, boardHeight) / 2 - 48;
+        let positions = [];
+        switch(layoutType) {
+            case 'circle':
+                for (let i=0; i<holeCount; i++) { let ang = (i/holeCount)*2*Math.PI; positions.push({x: centerX+radius*Math.cos(ang)-35, y: centerY+radius*Math.sin(ang)-35}); }
+                break;
+            case 'concentric':
+                let rings = holeCount<=8?2:3; let perRing = Math.ceil(holeCount/rings);
+                for(let r=1; r<=rings; r++) { let ringRad = (radius*r)/rings; let holesThis = (r===rings)?holeCount-(perRing*(rings-1)):perRing;
+                    for(let i=0;i<holesThis;i++) { let ang = (i/holesThis)*2*Math.PI; positions.push({x: centerX+ringRad*Math.cos(ang)-35, y: centerY+ringRad*Math.sin(ang)-35}); } }
+                break;
+            case 'grid':
+                let cols = Math.ceil(Math.sqrt(holeCount)), rows = Math.ceil(holeCount/cols);
+                let cellW = boardWidth/(cols+1), cellH = boardHeight/(rows+1);
+                for(let i=0;i<holeCount;i++){ let col=i%cols, row=Math.floor(i/cols); positions.push({x:cellW*(col+1)-35, y:cellH*(row+1)-35}); }
+                break;
+            default:
+                for(let i=0;i<holeCount;i++){ let a=Math.random()*2*Math.PI, rad=Math.random()*(radius-30)+25; positions.push({x:centerX+rad*Math.cos(a)-35, y:centerY+rad*Math.sin(a)-35}); }
+        }
+        positions.forEach((pos, idx) => {
+            const hole = document.createElement('div');
+            hole.className = 'hole';
+            hole.style.left = `${Math.min(Math.max(pos.x, 5), boardWidth-70)}px`;
+            hole.style.top = `${Math.min(Math.max(pos.y, 5), boardHeight-70)}px`;
+            hole.dataset.index = idx;
+            const mole = document.createElement('div');
+            mole.className = 'mole';
+            mole.dataset.index = idx;
+            // 添加可爱装饰
+            const blushL = document.createElement('div'); blushL.className = 'blush left'; 
+            const blushR = document.createElement('div'); blushR.className = 'blush right';
+            const whiskerL1 = document.createElement('div'); whiskerL1.className = 'whisker left1';
+            const whiskerL2 = document.createElement('div'); whiskerL2.className = 'whisker left2';
+            const whiskerR1 = document.createElement('div'); whiskerR1.className = 'whisker right1';
+            const whiskerR2 = document.createElement('div'); whiskerR2.className = 'whisker right2';
+            mole.appendChild(blushL); mole.appendChild(blushR);
+            mole.appendChild(whiskerL1); mole.appendChild(whiskerL2);
+            mole.appendChild(whiskerR1); mole.appendChild(whiskerR2);
+            hole.appendChild(mole);
+            gameBoard.appendChild(hole);
+            hole.addEventListener('click', (e) => { e.stopPropagation(); handleMoleClick(idx); });
+            hole.addEventListener('touchstart', (e) => { e.preventDefault(); e.stopPropagation(); handleMoleClick(idx); }, { passive: false });
+        });
+    }
+    
+    function endGame() {
+        if (!isPlaying) return;
+        isPlaying = false;
+        stopGameLoops();
+        clearAllMolesAndTimeouts();
+        if (comboTimeoutId) clearTimeout(comboTimeoutId);
+        setDifficultyButtonsEnabled(true);
+        finalScoreEl.textContent = Math.floor(score);
+        if(maxCombo>=3) comboMessageSpan.innerHTML = `🏆 最高连击 x${maxCombo} 🏆`;
+        else comboMessageSpan.innerHTML = '';
+        gameOverScreen.style.display = 'flex';
+    }
+    
+    function startGameLogic(resetTimer = true) {
+        if (isPlaying) {
             isPlaying = false;
-            activeMoles = [];
-            comboCount = 0;
-            maxCombo = 0;
-            
-            // 清除定时器
-            clearInterval(moleInterval);
-            clearInterval(timerInterval);
-            
-            // 更新显示
-            updateDisplay();
-            
-            // 隐藏游戏结束画面
-            gameOverScreen.style.display = 'none';
-            
-            // 创建地鼠洞
-            createHoles();
-            
-            // 更新按钮文本
-            startBtn.textContent = '开始游戏';
-            
-            // 重置设置面板中的值
-            pendingSettings.holeCount = holeCount;
-            pendingSettings.layoutType = layoutType;
-            holeCountSlider.value = holeCount;
-            holeCountValue.textContent = holeCount;
-            
-            layoutBtns.forEach(btn => {
-                if (btn.dataset.layout === layoutType) {
-                    btn.classList.add('active');
-                } else {
-                    btn.classList.remove('active');
-                }
-            });
-        }
-        
-        // 更新显示
-        function updateDisplay() {
-            scoreEl.textContent = score;
-            timeEl.textContent = timeLeft;
-            highScoreEl.textContent = highScore;
-            
-            // 更新连击显示
-            if (comboCount > 1) {
-                comboDisplay.textContent = `${comboCount} 连击！ +${comboCount * 2}分`;
-            } else {
-                comboDisplay.textContent = '';
-            }
-        }
-        
-        // 创建地鼠洞 - 支持不同布局
-        function createHoles() {
-            // 清空游戏板
-            const existingHoles = document.querySelectorAll('.hole');
-            existingHoles.forEach(hole => hole.remove());
-            
-            // 添加圆形边框
-            if (!document.querySelector('.circle')) {
-                const circle = document.createElement('div');
-                circle.className = 'circle';
-                gameBoard.appendChild(circle);
-            }
-            
-            // 根据布局类型创建洞
-            const boardWidth = gameBoard.offsetWidth;
-            const boardHeight = gameBoard.offsetHeight;
-            const centerX = boardWidth / 2;
-            const centerY = boardHeight / 2;
-            const radius = Math.min(boardWidth, boardHeight) / 2 - 50;
-            
-            let positions = [];
-            
-            switch(layoutType) {
-                case 'circle': // 圆形布局
-                    for (let i = 0; i < holeCount; i++) {
-                        const angle = (i / holeCount) * 2 * Math.PI;
-                        const x = centerX + radius * Math.cos(angle) - 37.5;
-                        const y = centerY + radius * Math.sin(angle) - 37.5;
-                        positions.push({x, y});
-                    }
-                    break;
-                    
-                case 'concentric': // 同心圆布局
-                    const rings = holeCount <= 8 ? 2 : 3;
-                    const holesPerRing = Math.ceil(holeCount / rings);
-                    
-                    for (let ring = 1; ring <= rings; ring++) {
-                        const ringRadius = (radius * ring) / rings;
-                        const holesInThisRing = ring === rings ? 
-                            holeCount - (holesPerRing * (rings-1)) : holesPerRing;
-                        
-                        for (let i = 0; i < holesInThisRing; i++) {
-                            const angle = (i / holesInThisRing) * 2 * Math.PI;
-                            const x = centerX + ringRadius * Math.cos(angle) - 37.5;
-                            const y = centerY + ringRadius * Math.sin(angle) - 37.5;
-                            positions.push({x, y});
-                        }
-                    }
-                    break;
-                    
-                case 'grid': // 网格布局
-                    const cols = Math.ceil(Math.sqrt(holeCount));
-                    const rows = Math.ceil(holeCount / cols);
-                    const cellWidth = boardWidth / (cols + 1);
-                    const cellHeight = boardHeight / (rows + 1);
-                    
-                    for (let i = 0; i < holeCount; i++) {
-                        const col = i % cols;
-                        const row = Math.floor(i / cols);
-                        const x = cellWidth * (col + 1) - 37.5;
-                        const y = cellHeight * (row + 1) - 37.5;
-                        positions.push({x, y});
-                    }
-                    break;
-                    
-                case 'random': // 随机布局
-                    for (let i = 0; i < holeCount; i++) {
-                        const randomAngle = Math.random() * 2 * Math.PI;
-                        const randomRadius = Math.random() * (radius - 50) + 25;
-                        const x = centerX + randomRadius * Math.cos(randomAngle) - 37.5;
-                        const y = centerY + randomRadius * Math.sin(randomAngle) - 37.5;
-                        positions.push({x, y});
-                    }
-                    break;
-            }
-            
-            // 创建洞元素
-            positions.forEach((pos, index) => {
-                // 创建洞元素
-                const hole = document.createElement('div');
-                hole.className = 'hole';
-                hole.style.left = `${pos.x}px`;
-                hole.style.top = `${pos.y}px`;
-                hole.dataset.index = index;
-                
-                // 创建地鼠元素
-                const mole = document.createElement('div');
-                mole.className = 'mole';
-                mole.dataset.index = index;
-                
-                // 添加到洞中
-                hole.appendChild(mole);
-                
-                // 添加到游戏板
-                gameBoard.appendChild(hole);
-                
-                // 添加点击事件
-                hole.addEventListener('click', () => handleMoleClick(index));
-            });
-        }
-        
-        // 处理地鼠点击
-        function handleMoleClick(index) {
-            if (!isPlaying) return;
-            
-            const mole = document.querySelector(`.mole[data-index="${index}"]`);
-            
-            // 检查是否点击了显示的地鼠
-            if (mole.classList.contains('show')) {
-                // 击中地鼠
-                hitMole(index, mole);
-            } else {
-                // 点击空地
-                missClick();
-            }
-        }
-        
-        // 击中地鼠
-        function hitMole(index, mole) {
-            // 隐藏地鼠
-            mole.classList.remove('show');
-            
-            // 从活动地鼠列表中移除
-            activeMoles = activeMoles.filter(m => m !== index);
-            
-            // 添加击中效果
-            const hitEffect = document.createElement('div');
-            hitEffect.className = 'hit-effect';
-            hitEffect.style.left = '0px';
-            hitEffect.style.top = '0px';
-            mole.parentElement.appendChild(hitEffect);
-            
-            // 播放击中音效
-            playHitSound();
-            
-            // 增加连击数
-            comboCount++;
-            maxCombo = Math.max(maxCombo, comboCount);
-            
-            // 计算得分（基础分 + 连击奖励）
-            const basePoints = CONFIG[currentDifficulty].points;
-            const comboBonus = comboCount > 1 ? comboCount * 2 : 0;
-            const totalPoints = basePoints + comboBonus;
-            
-            score += totalPoints;
-            
-            // 移除击中效果
-            setTimeout(() => {
-                if (hitEffect.parentNode === mole.parentElement) {
-                    mole.parentElement.removeChild(hitEffect);
-                }
-            }, 500);
-            
-            // 更新显示
-            updateDisplay();
-            
-            // 更新最高分
-            if (score > highScore) {
-                highScore = score;
-                localStorage.setItem('moleHighScore', highScore);
-                updateDisplay();
-            }
-        }
-        
-        // 点击空地
-        function missClick() {
-            // 减少分数
-            score = Math.max(0, score - 5);
-            
-            // 重置连击
-            comboCount = 0;
-            
-            // 播放错过音效
-            playMissSound();
-            
-            // 更新显示
-            updateDisplay();
-        }
-        
-        // 播放击中音效
-        function playHitSound() {
-            try {
-                hitSound.currentTime = 0;
-                hitSound.play();
-                
-                // 如果连击超过3次，播放连击音效
-                if (comboCount >= 3) {
-                    setTimeout(() => {
-                        comboSound.currentTime = 0;
-                        comboSound.play();
-                    }, 100);
-                }
-            } catch (e) {
-                console.log("音频播放失败:", e);
-            }
-        }
-        
-        // 播放错过音效
-        function playMissSound() {
-            try {
-                missSound.currentTime = 0;
-                missSound.play();
-            } catch (e) {
-                console.log("音频播放失败:", e);
-            }
-        }
-        
-        // 随机显示地鼠
-        function showRandomMole() {
-            if (!isPlaying) return;
-            
-            // 获取所有地鼠
-            const moles = document.querySelectorAll('.mole');
-            if (moles.length === 0) return;
-            
-            // 随机选择一个地鼠
-            const availableIndices = Array.from(moles.keys())
-                .filter(i => !activeMoles.includes(i));
-            
-            if (availableIndices.length === 0) return;
-            
-            const randomIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)];
-            const mole = moles[randomIndex];
-            
-            // 显示地鼠
-            mole.classList.add('show');
-            activeMoles.push(randomIndex);
-            
-            // 设置隐藏时间
-            setTimeout(() => {
-                if (mole.classList.contains('show')) {
-                    mole.classList.remove('show');
-                    activeMoles = activeMoles.filter(m => m !== randomIndex);
-                    
-                    // 如果地鼠自然消失，增加错过计数
-                    if (isPlaying) {
-                        comboCount = 0;
-                        updateDisplay();
-                    }
-                }
-            }, CONFIG[currentDifficulty].visible);
-        }
-        
-        // 开始游戏
-        function startGame() {
-            if (isPlaying) {
-                // 暂停游戏
-                isPlaying = false;
-                clearInterval(moleInterval);
-                clearInterval(timerInterval);
-                startBtn.textContent = '继续游戏';
-            } else {
-                // 开始或继续游戏
-                isPlaying = true;
-                startBtn.textContent = '暂停游戏';
-                
-                // 开始地鼠出现
-                moleInterval = setInterval(showRandomMole, CONFIG[currentDifficulty].interval);
-                
-                // 开始计时
+            stopGameLoops();
+            clearAllMolesAndTimeouts();
+            if (comboTimeoutId) clearTimeout(comboTimeoutId);
+            startBtn.textContent = '▶ 继续游戏';
+            setDifficultyButtonsEnabled(true);
+        } else {
+            isPlaying = true;
+            startBtn.textContent = '⏸ 暂停游戏';
+            setDifficultyButtonsEnabled(false);
+            if (resetTimer && timerInterval === null && !endlessMode) {
+                timeLeft = CONFIG[currentDifficulty].time;
+                timeEl.textContent = timeLeft;
                 timerInterval = setInterval(() => {
-                    timeLeft--;
-                    timeEl.textContent = timeLeft;
-                    
-                    if (timeLeft <= 0) {
-                        endGame();
+                    if(!isPlaying) return;
+                    if(!endlessMode) {
+                        timeLeft--;
+                        timeEl.textContent = timeLeft;
+                        if(timeLeft <= 0) endGame();
                     }
                 }, 1000);
+            } else if (endlessMode && timerInterval === null) {
+                timerInterval = setInterval(() => { if(!isPlaying) return; updateUI(); }, 500);
             }
+            if (moleInterval) clearInterval(moleInterval);
+            moleInterval = setInterval(() => showRandomMole(), CONFIG[currentDifficulty].interval);
         }
-        
-        // 结束游戏
-        function endGame() {
-            isPlaying = false;
-            clearInterval(moleInterval);
-            clearInterval(timerInterval);
-            
-            // 隐藏所有地鼠
-            document.querySelectorAll('.mole.show').forEach(mole => {
-                mole.classList.remove('show');
-            });
-            
-            // 显示游戏结束画面
-            finalScoreEl.textContent = score;
-            
-            // 显示连击信息
-            if (maxCombo > 3) {
-                comboMessage.textContent = `最高连击: ${maxCombo} 次！`;
-                comboMessage.style.color = '#FFD700';
-                comboMessage.style.fontWeight = 'bold';
-            } else {
-                comboMessage.textContent = '';
-            }
-            
-            gameOverScreen.style.display = 'flex';
-        }
-        
-        // 设置难度
-        function setDifficulty(difficulty) {
-            currentDifficulty = difficulty;
-            
-            // 更新按钮状态
-            difficultyBtns.forEach(btn => {
-                if (btn.dataset.difficulty === difficulty) {
-                    btn.classList.add('active');
-                } else {
-                    btn.classList.remove('active');
-                }
-            });
-            
-            // 更新游戏时间
-            timeLeft = CONFIG[difficulty].time;
-            timeEl.textContent = timeLeft;
-            
-            // 如果游戏正在进行，重新设置定时器
-            if (isPlaying) {
-                clearInterval(moleInterval);
-                moleInterval = setInterval(showRandomMole, CONFIG[difficulty].interval);
-            }
-        }
-        
-        // 显示设置面板
-        function showSettings() {
-            settingsPanel.style.display = 'flex';
-        }
-        
-        // 隐藏设置面板
-        function hideSettings() {
-            settingsPanel.style.display = 'none';
-        }
-        
-        // 应用设置
-        function applySettings() {
-            if (isPlaying) {
-                alert("游戏进行中无法更改设置，请先暂停游戏");
-                return;
-            }
-            
-            holeCount = pendingSettings.holeCount;
-            layoutType = pendingSettings.layoutType;
-            
-            hideSettings();
-            initGame();
-        }
-        
-        // 事件监听
-        startBtn.addEventListener('click', startGame);
-        settingsBtn.addEventListener('click', showSettings);
-        restartBtn.addEventListener('click', () => {
-            initGame();
-            startGame();
+    }
+    
+    function initGame(fullReset = true) {
+        if (isPlaying) startGameLogic(); 
+        isPlaying = false;
+        stopGameLoops();
+        clearAllMolesAndTimeouts();
+        if (comboTimeoutId) clearTimeout(comboTimeoutId);
+        score = 0;
+        comboCount = 0; maxCombo = 0;
+        timeLeft = CONFIG[currentDifficulty].time;
+        updateUI();
+        gameOverScreen.style.display = 'none';
+        createHoles();
+        startBtn.textContent = '开始游戏';
+        setDifficultyButtonsEnabled(true);
+        if (fullReset) highScore = localStorage.getItem('moleHighScore') || 0;
+        highScoreEl.textContent = highScore;
+        if (endlessMode) timerBox.style.opacity = '0.7';
+        else timerBox.style.opacity = '1';
+    }
+    
+    function setDifficulty(level) {
+        if (isPlaying) return;
+        currentDifficulty = level;
+        difficultyBtns.forEach(btn => btn.dataset.difficulty === level ? btn.classList.add('active') : btn.classList.remove('active'));
+        timeLeft = CONFIG[level].time;
+        timeEl.textContent = endlessMode ? '∞' : timeLeft;
+        if (!isPlaying) { score = 0; comboCount=0; updateUI(); }
+    }
+    
+    function openSettings() {
+        if (isPlaying) { settingsResumeFlag = true; startGameLogic(); }
+        else settingsResumeFlag = false;
+        settingsPanel.style.display = 'flex';
+    }
+    function closeSettingsAndResume() {
+        settingsPanel.style.display = 'none';
+        if (settingsResumeFlag && !isPlaying) startGameLogic();
+        settingsResumeFlag = false;
+    }
+    
+    function applyAndRestart() {
+        if (isPlaying) { alert('请先结束或暂停游戏再调整设置'); return; }
+        holeCount = pendingSettings.holeCount;
+        layoutType = pendingSettings.layoutType;
+        endlessMode = pendingSettings.endless;
+        soundEnabled = pendingSettings.sound;
+        vibrateEnabled = pendingSettings.vibrate;
+        // 更新UI开关显示
+        soundToggle.classList.toggle('active', soundEnabled);
+        vibrateToggle.classList.toggle('active', vibrateEnabled);
+        endlessToggle.classList.toggle('active', endlessMode);
+        if (endlessMode) timerBox.style.opacity = '0.7';
+        else timerBox.style.opacity = '1';
+        closeSettingsAndResume();
+        initGame(true);
+        breakCombo();
+    }
+    
+    // 设置开关交互
+    soundToggle.addEventListener('click', () => { pendingSettings.sound = !pendingSettings.sound; soundToggle.classList.toggle('active', pendingSettings.sound); });
+    vibrateToggle.addEventListener('click', () => { pendingSettings.vibrate = !pendingSettings.vibrate; vibrateToggle.classList.toggle('active', pendingSettings.vibrate); });
+    endlessToggle.addEventListener('click', () => { pendingSettings.endless = !pendingSettings.endless; endlessToggle.classList.toggle('active', pendingSettings.endless); });
+    
+    // 事件绑定
+    startBtn.addEventListener('click', () => startGameLogic(true));
+    settingsBtn.addEventListener('click', openSettings);
+    restartBtn.addEventListener('click', () => { gameOverScreen.style.display = 'none'; initGame(true); startGameLogic(true); });
+    closeSettingsBtn.addEventListener('click', closeSettingsAndResume);
+    applySettingsBtn.addEventListener('click', applyAndRestart);
+    holeCountSlider.addEventListener('input', function(){ holeCountValue.textContent = this.value; pendingSettings.holeCount = parseInt(this.value); });
+    layoutBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            layoutBtns.forEach(b=>b.classList.remove('active'));
+            this.classList.add('active');
+            pendingSettings.layoutType = this.dataset.layout;
         });
-        
-        difficultyBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                setDifficulty(btn.dataset.difficulty);
-            });
-        });
-        
-        // 设置面板事件
-        closeSettingsBtn.addEventListener('click', hideSettings);
-        
-        holeCountSlider.addEventListener('input', function() {
-            holeCountValue.textContent = this.value;
-            pendingSettings.holeCount = parseInt(this.value);
-        });
-        
-        layoutBtns.forEach(btn => {
-            btn.addEventListener('click', function() {
-                layoutBtns.forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                pendingSettings.layoutType = this.dataset.layout;
-            });
-        });
-        
-        applySettingsBtn.addEventListener('click', applySettings);
-        
-        // 点击设置面板外部关闭
-        settingsPanel.addEventListener('click', function(e) {
-            if (e.target === settingsPanel) {
-                hideSettings();
-            }
-        });
-        
-        // 初始化游戏
-        initGame();
-        // 响应窗口大小变化
-        window.addEventListener('resize', () => {
-            if (!isPlaying) {
-                createHoles();
-            }
-        });
-    </script>
-    <script>
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('./sv.js').then(reg => {
-          console.log('Service Worker 注册成功，作用域:', reg.scope);
-        }).catch(err => {
-          console.error('Service Worker 注册失败:', err);
-        });
-      }
-    </script>
+    });
+    difficultyBtns.forEach(btn => {
+        btn.addEventListener('click', () => { if(!isPlaying) setDifficulty(btn.dataset.difficulty); });
+    });
+    settingsPanel.addEventListener('click', (e) => { if(e.target === settingsPanel) closeSettingsAndResume(); });
+    window.addEventListener('resize', () => {
+        if (resizeDebounce) clearTimeout(resizeDebounce);
+        resizeDebounce = setTimeout(() => { if (!isPlaying) createHoles(); }, 150);
+    });
+    document.body.addEventListener('touchstart', ()=>{}, {once:true});
+    
+    // 初始加载设置默认值
+    pendingSettings = { holeCount: 8, layoutType: 'circle', endless: false, sound: true, vibrate: true };
+    soundToggle.classList.add('active'); vibrateToggle.classList.add('active'); 
+    endlessToggle.classList.remove('active');
+    initGame(true);
+</script>
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sv.js').then(reg => {
+      console.log('Service Worker 注册成功，作用域:', reg.scope);
+    }).catch(err => {
+      console.error('Service Worker 注册失败:', err);
+    });
+  }
+</script>
 </body>
 </html>
