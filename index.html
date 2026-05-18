@@ -535,6 +535,7 @@
     let pendingSettings = { holeCount: 8, layoutType: 'circle', endless: false, sound: true, vibrate: true };
     let settingsResumeFlag = false;
     let resizeDebounce = null;
+    let audioUnlocked = false;     // 标记是否已解锁音频
     
     // DOM
     const scoreEl = document.getElementById('score');
@@ -566,6 +567,24 @@
     const comboSound = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3');
     [hitSound, missSound, comboSound].forEach(a => { a.volume = 0.5; a.preload = 'auto'; });
     
+    // ---------- 解锁音频 (用户首次交互时调用) ----------
+    function unlockAudio() {
+        if (audioUnlocked) return;
+        // 静音播放并立即暂停，以激活 AudioContext
+        const silentPlay = (audio) => {
+            audio.volume = 0;
+            audio.play().then(() => {
+                audio.pause();
+                audio.currentTime = 0;
+                audio.volume = 0.5;
+            }).catch(e => console.log("音频解锁失败", e));
+        };
+        silentPlay(hitSound);
+        silentPlay(missSound);
+        silentPlay(comboSound);
+        audioUnlocked = true;
+    }
+    
     // 辅助函数
     function updateUI() {
         scoreEl.textContent = Math.floor(score);
@@ -596,11 +615,36 @@
     }
     
     function vibrateLight() {
-        if (vibrateEnabled && window.navigator && window.navigator.vibrate) window.navigator.vibrate(18);
+        if (vibrateEnabled && window.navigator && window.navigator.vibrate) {
+            window.navigator.vibrate(18);
+        }
     }
-    function playHit() { if(soundEnabled) { hitSound.currentTime = 0; hitSound.play().catch(e=>console.log); } vibrateLight(); }
-    function playMiss() { if(soundEnabled) { missSound.currentTime = 0; missSound.play().catch(e=>console.log); } vibrateLight(); }
-    function playComboBonus() { if(soundEnabled) { comboSound.currentTime = 0; comboSound.play().catch(e=>console.log); } }
+    
+    function playHit() {
+        if (soundEnabled) {
+            unlockAudio(); // 确保音频已解锁（安全，多次调用无害）
+            hitSound.currentTime = 0;
+            hitSound.play().catch(e => console.log("播放失败", e));
+        }
+        vibrateLight();
+    }
+    
+    function playMiss() {
+        if (soundEnabled) {
+            unlockAudio();
+            missSound.currentTime = 0;
+            missSound.play().catch(e => console.log("播放失败", e));
+        }
+        vibrateLight();
+    }
+    
+    function playComboBonus() {
+        if (soundEnabled) {
+            unlockAudio();
+            comboSound.currentTime = 0;
+            comboSound.play().catch(e => console.log("播放失败", e));
+        }
+    }
     
     function setDifficultyButtonsEnabled(enabled) {
         difficultyBtns.forEach(btn => enabled ? btn.removeAttribute('disabled') : btn.setAttribute('disabled', 'disabled'));
@@ -643,6 +687,9 @@
     
     function handleMoleClick(index) {
         if (!isPlaying) return;
+        // 首次点击任意地鼠时解锁音频（额外保险）
+        unlockAudio();
+        
         const mole = document.querySelector(`.mole[data-index="${index}"]`);
         if (!mole || !mole.classList.contains('show')) {
             score = Math.max(0, score - MISS_PENALTY);
@@ -788,6 +835,8 @@
             isPlaying = true;
             startBtn.textContent = '⏸ 暂停游戏';
             setDifficultyButtonsEnabled(false);
+            unlockAudio(); // 开始游戏时也尝试解锁音频
+            
             if (resetTimer && timerInterval === null && !endlessMode) {
                 timeLeft = CONFIG[currentDifficulty].time;
                 timeEl.textContent = timeLeft;
@@ -871,7 +920,7 @@
     endlessToggle.addEventListener('click', () => { pendingSettings.endless = !pendingSettings.endless; endlessToggle.classList.toggle('active', pendingSettings.endless); });
     
     // 事件绑定
-    startBtn.addEventListener('click', () => startGameLogic(true));
+    startBtn.addEventListener('click', () => { unlockAudio(); startGameLogic(true); });
     settingsBtn.addEventListener('click', openSettings);
     restartBtn.addEventListener('click', () => { gameOverScreen.style.display = 'none'; initGame(true); startGameLogic(true); });
     closeSettingsBtn.addEventListener('click', closeSettingsAndResume);
@@ -892,7 +941,9 @@
         if (resizeDebounce) clearTimeout(resizeDebounce);
         resizeDebounce = setTimeout(() => { if (!isPlaying) createHoles(); }, 150);
     });
-    document.body.addEventListener('touchstart', ()=>{}, {once:true});
+    // 全局触摸任意位置尝试解锁音频（首次触摸）
+    document.body.addEventListener('touchstart', unlockAudio, { once: true });
+    document.body.addEventListener('mousedown', unlockAudio, { once: true });
     
     // 初始加载设置默认值
     pendingSettings = { holeCount: 8, layoutType: 'circle', endless: false, sound: true, vibrate: true };
