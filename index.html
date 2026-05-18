@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>打地鼠·可爱无尽版</title>
-    <link rel="manifest" href="./manifest.json">
+    <title>打地鼠·纯净木鱼声</title>
+	<link rel="manifest" href="./manifest.json">
     <style>
         * {
             margin: 0;
@@ -108,7 +108,6 @@
             pointer-events: none;
         }
         
-        /* 地鼠洞 - 溢出隐藏，保证看不见未出洞的地鼠 */
         .hole {
             position: absolute;
             width: 70px;
@@ -127,7 +126,6 @@
             transform: scale(0.96);
         }
         
-        /* 可爱地鼠 - 绝对定位，初始藏在洞底 */
         .mole {
             position: absolute;
             width: 90%;
@@ -146,7 +144,6 @@
             bottom: 0;
         }
         
-        /* 地鼠大眼睛 */
         .mole::before {
             content: "";
             position: absolute;
@@ -160,7 +157,6 @@
             z-index: 2;
         }
         
-        /* 瞳孔 */
         .mole::after {
             content: "";
             position: absolute;
@@ -174,7 +170,6 @@
             z-index: 3;
         }
         
-        /* 腮红 */
         .blush {
             position: absolute;
             bottom: 12px;
@@ -186,16 +181,9 @@
             filter: blur(1px);
             pointer-events: none;
         }
+        .blush.left { left: 8px; }
+        .blush.right { right: 8px; }
         
-        .blush.left {
-            left: 8px;
-        }
-        
-        .blush.right {
-            right: 8px;
-        }
-        
-        /* 胡须 */
         .whisker {
             position: absolute;
             bottom: 18px;
@@ -206,13 +194,11 @@
             transform: rotate(10deg);
             pointer-events: none;
         }
-        
         .whisker.left1 { left: 0px; transform: rotate(-10deg); }
         .whisker.left2 { left: 2px; bottom: 22px; transform: rotate(-20deg); width: 12px; }
         .whisker.right1 { right: 0px; transform: rotate(10deg); }
         .whisker.right2 { right: 2px; bottom: 22px; transform: rotate(20deg); width: 12px; }
         
-        /* 击中特效 */
         .hit-effect {
             position: absolute;
             width: 70px;
@@ -250,19 +236,9 @@
             box-shadow: 0 4px 8px rgba(0,0,0,0.3);
             transition: all 0.1s ease;
         }
-        
-        .action-btn:active {
-            transform: scale(0.96);
-        }
-        
-        .start-btn {
-            background: linear-gradient(135deg, #11998e, #38ef7d);
-            box-shadow: 0 0 8px #38ef7d;
-        }
-        
-        .settings-btn {
-            background: linear-gradient(135deg, #8E2DE2, #4A00E0);
-        }
+        .action-btn:active { transform: scale(0.96); }
+        .start-btn { background: linear-gradient(135deg, #11998e, #38ef7d); box-shadow: 0 0 8px #38ef7d; }
+        .settings-btn { background: linear-gradient(135deg, #8E2DE2, #4A00E0); }
         
         .difficulty-buttons {
             display: flex;
@@ -271,7 +247,6 @@
             flex-wrap: wrap;
             margin: 6px 0 4px;
         }
-        
         .difficulty-btn {
             padding: 6px 14px;
             border: none;
@@ -284,19 +259,8 @@
             backdrop-filter: blur(4px);
             font-size: 0.8rem;
         }
-        
-        .difficulty-btn.active {
-            background: #FFB347;
-            color: #2c1a00;
-            box-shadow: 0 0 8px orange;
-        }
-        
-        .difficulty-btn:disabled {
-            opacity: 0.5;
-            transform: none;
-            cursor: not-allowed;
-            filter: grayscale(0.2);
-        }
+        .difficulty-btn.active { background: #FFB347; color: #2c1a00; box-shadow: 0 0 8px orange; }
+        .difficulty-btn:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(0.2); }
         
         .instructions {
             background: rgba(0, 0, 0, 0.4);
@@ -307,7 +271,6 @@
             width: 90%;
         }
         
-        /* 设置面板 */
         .settings-panel {
             position: fixed;
             top: 0;
@@ -321,7 +284,6 @@
             z-index: 1000;
             backdrop-filter: blur(12px);
         }
-        
         .settings-content {
             background: linear-gradient(145deg, #1f2b3c, #0f1a2a);
             border-radius: 36px;
@@ -330,92 +292,24 @@
             max-width: 380px;
             border: 1px solid gold;
         }
-        
-        .settings-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
-        
-        .close-settings {
-            background: none;
-            border: none;
-            font-size: 32px;
-            color: #ffd966;
-            cursor: pointer;
-        }
-        
-        .setting-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin: 15px 0;
-            color: white;
-        }
-        
+        .settings-header { display: flex; justify-content: space-between; margin-bottom: 20px; }
+        .close-settings { background: none; border: none; font-size: 32px; color: #ffd966; cursor: pointer; }
+        .setting-item { display: flex; justify-content: space-between; align-items: center; margin: 15px 0; color: white; }
         .toggle-switch {
-            width: 50px;
-            height: 26px;
-            background: #555;
-            border-radius: 30px;
-            display: inline-block;
-            position: relative;
-            cursor: pointer;
-            transition: 0.2s;
+            width: 50px; height: 26px; background: #555; border-radius: 30px; display: inline-block;
+            position: relative; cursor: pointer; transition: 0.2s;
         }
-        
-        .toggle-switch.active {
-            background: #4caf50;
-        }
-        
+        .toggle-switch.active { background: #4caf50; }
         .toggle-switch span {
-            position: absolute;
-            top: 3px;
-            left: 4px;
-            width: 20px;
-            height: 20px;
-            background: white;
-            border-radius: 50%;
-            transition: 0.2s;
+            position: absolute; top: 3px; left: 4px; width: 20px; height: 20px;
+            background: white; border-radius: 50%; transition: 0.2s;
         }
-        
-        .toggle-switch.active span {
-            left: 26px;
-        }
-        
-        .hole-count-control {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin: 12px 0;
-        }
-        
-        .layout-buttons {
-            display: grid;
-            grid-template-columns: repeat(2,1fr);
-            gap: 10px;
-            margin: 12px 0;
-        }
-        
-        .layout-btn, .apply-settings {
-            background: #2c3e66;
-            border: none;
-            padding: 10px;
-            border-radius: 60px;
-            color: white;
-            font-weight: bold;
-        }
-        
-        .layout-btn.active {
-            background: #ffb347;
-            color: black;
-        }
-        
-        .apply-settings {
-            background: #00b09b;
-            width: 100%;
-            margin-top: 20px;
-        }
+        .toggle-switch.active span { left: 26px; }
+        .hole-count-control { display: flex; align-items: center; gap: 12px; margin: 12px 0; }
+        .layout-buttons { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; margin: 12px 0; }
+        .layout-btn, .apply-settings { background: #2c3e66; border: none; padding: 10px; border-radius: 60px; color: white; font-weight: bold; }
+        .layout-btn.active { background: #ffb347; color: black; }
+        .apply-settings { background: #00b09b; width: 100%; margin-top: 20px; }
         
         .game-over {
             position: fixed;
@@ -428,17 +322,8 @@
             inset: 0;
             z-index: 110;
         }
-        
-        .game-over h2 {
-            color: gold;
-            font-size: 2.5rem;
-        }
-        
-        .final-score {
-            font-size: 3.5rem;
-            font-weight: bold;
-            color: #ffaa33;
-        }
+        .game-over h2 { color: gold; font-size: 2.5rem; }
+        .final-score { font-size: 3.5rem; font-weight: bold; color: #ffaa33; }
         
         @media (max-width: 480px) {
             .hole { width: 62px; height: 62px; }
@@ -451,16 +336,14 @@
 </head>
 <body>
 <div class="container">
-    <h1>🐹 打地鼠 · 可爱无限 🐹</h1>
+    <h1>🐹 打地鼠 · 纯净木鱼声 🥁</h1>
     <div class="stats">
         <div class="stat-box"><div class="stat-value" id="score">0</div><div class="stat-label">得分</div></div>
         <div class="stat-box" id="timerBox"><div class="stat-value" id="time">60</div><div class="stat-label">剩余秒</div></div>
         <div class="stat-box"><div class="stat-value" id="high-score">0</div><div class="stat-label">最高纪录</div></div>
     </div>
     <div class="combo-display" id="comboDisplay"></div>
-    <div class="game-board" id="gameBoard">
-        <div class="circle"></div>
-    </div>
+    <div class="game-board" id="gameBoard"><div class="circle"></div></div>
     <div class="difficulty-buttons" id="difficultyGroup">
         <button class="difficulty-btn active" data-difficulty="easy">🍃 简单</button>
         <button class="difficulty-btn" data-difficulty="medium">🌙 中等</button>
@@ -471,27 +354,15 @@
         <button class="action-btn start-btn" id="startBtn">▶ 开始游戏</button>
         <button class="action-btn settings-btn" id="settingsBtn"><i class="fas fa-cog"></i> 设置</button>
     </div>
-    <div class="instructions">
-        💥 点击冒头地鼠！连击加成，自然消失扣分，点空惩罚。设置可开启无尽模式 🔄
-    </div>
+    <div class="instructions">🥁 每次击中只发出一声木鱼“咚”，连击无额外音效，但震动会加强。设置可开关音效/震动/无尽模式。</div>
 </div>
 
-<!-- 设置面板 -->
 <div class="settings-panel" id="settingsPanel">
     <div class="settings-content">
         <div class="settings-header"><h2>⚙️ 游戏设置</h2><button class="close-settings" id="closeSettings">✖</button></div>
-        <div class="setting-item">
-            <span>🔊 音效开关</span>
-            <div class="toggle-switch" id="soundToggle"><span></span></div>
-        </div>
-        <div class="setting-item">
-            <span>📳 震动反馈</span>
-            <div class="toggle-switch" id="vibrateToggle"><span></span></div>
-        </div>
-        <div class="setting-item">
-            <span>🔄 无尽模式 (无限时间)</span>
-            <div class="toggle-switch" id="endlessToggle"><span></span></div>
-        </div>
+        <div class="setting-item"><span>🔊 音效开关（木鱼声）</span><div class="toggle-switch" id="soundToggle"><span></span></div></div>
+        <div class="setting-item"><span>📳 震动反馈</span><div class="toggle-switch" id="vibrateToggle"><span></span></div></div>
+        <div class="setting-item"><span>🔄 无尽模式 (无限时间)</span><div class="toggle-switch" id="endlessToggle"><span></span></div></div>
         <div class="settings-group"><h3>🐾 地鼠洞数量</h3><div class="hole-count-control"><input type="range" min="4" max="16" value="8" id="holeCountSlider"><span id="holeCountValue">8</span></div></div>
         <div class="settings-group"><h3>🗺️ 布局风格</h3><div class="layout-buttons"><button class="layout-btn" data-layout="circle">圆形</button><button class="layout-btn" data-layout="concentric">同心圆</button><button class="layout-btn" data-layout="grid">网格</button><button class="layout-btn" data-layout="random">随机</button></div></div>
         <button class="apply-settings" id="applySettings">✨ 应用并重开</button>
@@ -512,12 +383,10 @@
     const MISS_PENALTY = 5;
     const COMBO_TIMEOUT_MS = 1800;
     
-    // 音效/震动开关
     let soundEnabled = true;
     let vibrateEnabled = true;
     let endlessMode = false;
     
-    // 游戏状态
     let score = 0;
     let timeLeft = 60;
     let highScore = localStorage.getItem('moleHighScore') || 0;
@@ -535,57 +404,129 @@
     let pendingSettings = { holeCount: 8, layoutType: 'circle', endless: false, sound: true, vibrate: true };
     let settingsResumeFlag = false;
     let resizeDebounce = null;
-    let audioUnlocked = false;     // 标记是否已解锁音频
     
-    // DOM
-    const scoreEl = document.getElementById('score');
-    const timeEl = document.getElementById('time');
-    const highScoreEl = document.getElementById('high-score');
-    const startBtn = document.getElementById('startBtn');
-    const settingsBtn = document.getElementById('settingsBtn');
-    const gameOverScreen = document.getElementById('gameOver');
-    const finalScoreEl = document.getElementById('finalScore');
-    const restartBtn = document.getElementById('restartBtn');
-    const difficultyBtns = document.querySelectorAll('.difficulty-btn');
-    const gameBoard = document.querySelector('.game-board');
-    const settingsPanel = document.getElementById('settingsPanel');
-    const closeSettingsBtn = document.getElementById('closeSettings');
-    const holeCountSlider = document.getElementById('holeCountSlider');
-    const holeCountValue = document.getElementById('holeCountValue');
-    const layoutBtns = document.querySelectorAll('.layout-btn');
-    const applySettingsBtn = document.getElementById('applySettings');
-    const comboDisplay = document.getElementById('comboDisplay');
-    const comboMessageSpan = document.getElementById('comboMessage');
-    const timerBox = document.getElementById('timerBox');
-    const soundToggle = document.getElementById('soundToggle');
-    const vibrateToggle = document.getElementById('vibrateToggle');
-    const endlessToggle = document.getElementById('endlessToggle');
+    // ---------- Web Audio 木鱼音效 (单次敲击) ----------
+    let audioCtx = null;
+    let audioUnlocked = false;
     
-    // 音频对象
-    const hitSound = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-retro-game-emergency-alarm-1000.mp3');
-    const missSound = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-game-ball-tap-2073.mp3');
-    const comboSound = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3');
-    [hitSound, missSound, comboSound].forEach(a => { a.volume = 0.5; a.preload = 'auto'; });
-    
-    // ---------- 解锁音频 (用户首次交互时调用) ----------
-    function unlockAudio() {
-        if (audioUnlocked) return;
-        // 静音播放并立即暂停，以激活 AudioContext
-        const silentPlay = (audio) => {
-            audio.volume = 0;
-            audio.play().then(() => {
-                audio.pause();
-                audio.currentTime = 0;
-                audio.volume = 0.5;
-            }).catch(e => console.log("音频解锁失败", e));
-        };
-        silentPlay(hitSound);
-        silentPlay(missSound);
-        silentPlay(comboSound);
-        audioUnlocked = true;
+    function initAudioContext() {
+        if (audioCtx) return audioCtx;
+        try {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            return audioCtx;
+        } catch(e) { console.warn("Web Audio not supported"); return null; }
     }
     
-    // 辅助函数
+    // 单次木鱼声（模拟敲击木头）
+    function playMuyuSound() {
+        if (!soundEnabled) return;
+        const ctx = initAudioContext();
+        if (!ctx || ctx.state !== 'running') return;
+        
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        
+        osc.type = 'sine';
+        osc.frequency.value = 280;      // 木鱼基频
+        gain.gain.setValueAtTime(0.25, now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.08);
+        osc.start();
+        osc.stop(now + 0.08);
+        
+        // 微弱的二次泛音（让声音圆润）
+        const osc2 = ctx.createOscillator();
+        const gain2 = ctx.createGain();
+        osc2.connect(gain2);
+        gain2.connect(ctx.destination);
+        osc2.type = 'triangle';
+        osc2.frequency.value = 560;
+        gain2.gain.setValueAtTime(0.08, now);
+        gain2.gain.exponentialRampToValueAtTime(0.0001, now + 0.06);
+        osc2.start();
+        osc2.stop(now + 0.06);
+    }
+    
+    // 空击声音（更低、更短）
+    function playMissWoodSound() {
+        if (!soundEnabled) return;
+        const ctx = initAudioContext();
+        if (!ctx || ctx.state !== 'running') return;
+        
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = 'sine';
+        osc.frequency.value = 180;
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.05);
+        osc.start();
+        osc.stop(now + 0.05);
+    }
+    
+    function unlockAudio() {
+        if (audioUnlocked) return true;
+        const ctx = initAudioContext();
+        if (!ctx) return false;
+        if (ctx.state === 'suspended') {
+            ctx.resume().then(() => {
+                audioUnlocked = true;
+                // 播放一个静默脉冲彻底激活音频输出
+                const buffer = ctx.createBuffer(1, 1, 44100);
+                const source = ctx.createBufferSource();
+                source.buffer = buffer;
+                source.connect(ctx.destination);
+                source.start();
+            }).catch(e => console.log("AudioContext resume failed", e));
+        } else {
+            audioUnlocked = true;
+        }
+        return audioUnlocked;
+    }
+    
+    // 震动（普通）
+    function vibrateLight() {
+        if (vibrateEnabled && window.navigator && window.navigator.vibrate) {
+            window.navigator.vibrate(18);
+        }
+    }
+    
+    // 连击时的加强震动（但音效仍只一次）
+    function vibrateCombo() {
+        if (vibrateEnabled && window.navigator && window.navigator.vibrate) {
+            window.navigator.vibrate([18, 30, 18]);
+        }
+    }
+    
+    // ---------- 核心音效调用（无叠加）----------
+    function playHit() {
+        if (soundEnabled) {
+            unlockAudio();
+            playMuyuSound();   // 只一次木鱼声
+        }
+        vibrateLight();        // 基础震动
+    }
+    
+    function playMiss() {
+        if (soundEnabled) {
+            unlockAudio();
+            playMissWoodSound();
+        }
+        vibrateLight();
+    }
+    
+    // 连击时只加强震动，不增加任何额外声音
+    function onComboAchieved() {
+        if (comboCount >= 3 && comboCount % 3 === 0) {
+            vibrateCombo();    // 加强震动反馈
+        }
+    }
+    
+    // ---------- 游戏逻辑 (完整保留) ----------
     function updateUI() {
         scoreEl.textContent = Math.floor(score);
         if (!endlessMode) timeEl.textContent = timeLeft;
@@ -612,38 +553,6 @@
         comboCount = 0;
         updateUI();
         comboDisplay.textContent = '';
-    }
-    
-    function vibrateLight() {
-        if (vibrateEnabled && window.navigator && window.navigator.vibrate) {
-            window.navigator.vibrate(18);
-        }
-    }
-    
-    function playHit() {
-        if (soundEnabled) {
-            unlockAudio(); // 确保音频已解锁（安全，多次调用无害）
-            hitSound.currentTime = 0;
-            hitSound.play().catch(e => console.log("播放失败", e));
-        }
-        vibrateLight();
-    }
-    
-    function playMiss() {
-        if (soundEnabled) {
-            unlockAudio();
-            missSound.currentTime = 0;
-            missSound.play().catch(e => console.log("播放失败", e));
-        }
-        vibrateLight();
-    }
-    
-    function playComboBonus() {
-        if (soundEnabled) {
-            unlockAudio();
-            comboSound.currentTime = 0;
-            comboSound.play().catch(e => console.log("播放失败", e));
-        }
     }
     
     function setDifficultyButtonsEnabled(enabled) {
@@ -687,7 +596,6 @@
     
     function handleMoleClick(index) {
         if (!isPlaying) return;
-        // 首次点击任意地鼠时解锁音频（额外保险）
         unlockAudio();
         
         const mole = document.querySelector(`.mole[data-index="${index}"]`);
@@ -719,8 +627,14 @@
         score += totalGain;
         if (score > highScore) { highScore = score; localStorage.setItem('moleHighScore', highScore); }
         updateUI();
+        
+        // 播放击中音效 (单次木鱼声)
         playHit();
-        if (comboCount >= 3 && (comboCount % 3 === 0 || comboCount === 3)) playComboBonus();
+        
+        // 连击时只触发加强震动，不额外播放声音
+        if (comboCount >= 3 && comboCount % 3 === 0) {
+            onComboAchieved();
+        }
         
         const hitEffect = document.createElement('div');
         hitEffect.className = 'hit-effect';
@@ -793,7 +707,6 @@
             const mole = document.createElement('div');
             mole.className = 'mole';
             mole.dataset.index = idx;
-            // 添加可爱装饰
             const blushL = document.createElement('div'); blushL.className = 'blush left'; 
             const blushR = document.createElement('div'); blushR.className = 'blush right';
             const whiskerL1 = document.createElement('div'); whiskerL1.className = 'whisker left1';
@@ -835,7 +748,7 @@
             isPlaying = true;
             startBtn.textContent = '⏸ 暂停游戏';
             setDifficultyButtonsEnabled(false);
-            unlockAudio(); // 开始游戏时也尝试解锁音频
+            unlockAudio();
             
             if (resetTimer && timerInterval === null && !endlessMode) {
                 timeLeft = CONFIG[currentDifficulty].time;
@@ -903,7 +816,6 @@
         endlessMode = pendingSettings.endless;
         soundEnabled = pendingSettings.sound;
         vibrateEnabled = pendingSettings.vibrate;
-        // 更新UI开关显示
         soundToggle.classList.toggle('active', soundEnabled);
         vibrateToggle.classList.toggle('active', vibrateEnabled);
         endlessToggle.classList.toggle('active', endlessMode);
@@ -914,12 +826,34 @@
         breakCombo();
     }
     
-    // 设置开关交互
+    // DOM 元素绑定
+    const scoreEl = document.getElementById('score');
+    const timeEl = document.getElementById('time');
+    const highScoreEl = document.getElementById('high-score');
+    const startBtn = document.getElementById('startBtn');
+    const settingsBtn = document.getElementById('settingsBtn');
+    const gameOverScreen = document.getElementById('gameOver');
+    const finalScoreEl = document.getElementById('finalScore');
+    const restartBtn = document.getElementById('restartBtn');
+    const difficultyBtns = document.querySelectorAll('.difficulty-btn');
+    const gameBoard = document.querySelector('.game-board');
+    const settingsPanel = document.getElementById('settingsPanel');
+    const closeSettingsBtn = document.getElementById('closeSettings');
+    const holeCountSlider = document.getElementById('holeCountSlider');
+    const holeCountValue = document.getElementById('holeCountValue');
+    const layoutBtns = document.querySelectorAll('.layout-btn');
+    const applySettingsBtn = document.getElementById('applySettings');
+    const comboDisplay = document.getElementById('comboDisplay');
+    const comboMessageSpan = document.getElementById('comboMessage');
+    const timerBox = document.getElementById('timerBox');
+    const soundToggle = document.getElementById('soundToggle');
+    const vibrateToggle = document.getElementById('vibrateToggle');
+    const endlessToggle = document.getElementById('endlessToggle');
+    
     soundToggle.addEventListener('click', () => { pendingSettings.sound = !pendingSettings.sound; soundToggle.classList.toggle('active', pendingSettings.sound); });
     vibrateToggle.addEventListener('click', () => { pendingSettings.vibrate = !pendingSettings.vibrate; vibrateToggle.classList.toggle('active', pendingSettings.vibrate); });
     endlessToggle.addEventListener('click', () => { pendingSettings.endless = !pendingSettings.endless; endlessToggle.classList.toggle('active', pendingSettings.endless); });
     
-    // 事件绑定
     startBtn.addEventListener('click', () => { unlockAudio(); startGameLogic(true); });
     settingsBtn.addEventListener('click', openSettings);
     restartBtn.addEventListener('click', () => { gameOverScreen.style.display = 'none'; initGame(true); startGameLogic(true); });
@@ -941,14 +875,11 @@
         if (resizeDebounce) clearTimeout(resizeDebounce);
         resizeDebounce = setTimeout(() => { if (!isPlaying) createHoles(); }, 150);
     });
-    // 全局触摸任意位置尝试解锁音频（首次触摸）
     document.body.addEventListener('touchstart', unlockAudio, { once: true });
     document.body.addEventListener('mousedown', unlockAudio, { once: true });
     
-    // 初始加载设置默认值
     pendingSettings = { holeCount: 8, layoutType: 'circle', endless: false, sound: true, vibrate: true };
-    soundToggle.classList.add('active'); vibrateToggle.classList.add('active'); 
-    endlessToggle.classList.remove('active');
+    soundToggle.classList.add('active'); vibrateToggle.classList.add('active'); endlessToggle.classList.remove('active');
     initGame(true);
 </script>
 <script>
