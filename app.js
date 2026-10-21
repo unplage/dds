@@ -1064,8 +1064,10 @@
       const chip = document.createElement('div');
       chip.className = 'powup';
       chip.dataset.id = id;
-      const secs = p.until ? Math.ceil((p.until - now()) / 1000) : '∞';
-      chip.innerHTML = `${POWERUP_ICON[p.def.icon] || ''}<span>${p.def.name}</span><span class="powup__time">${secs}s</span>`;
+      const secs = p.until ? `${Math.ceil((p.until - now()) / 1000)}s` : '∞';
+      chip.innerHTML = `${POWERUP_ICON[p.def.icon] || ''}<span class="powup__name">${p.def.name}</span><span class="powup__time">${secs}</span>`;
+      chip.title = `${p.def.name} — ${p.def.desc}`;
+      chip.setAttribute('aria-label', `${p.def.name}，${p.def.desc}，剩余 ${secs}`);
       ui.powups.appendChild(chip);
     }
   }

@@ -189,13 +189,17 @@ button:disabled { cursor: not-allowed; opacity: .45; }
 .combo.is-hot .combo__text b { color: #fff; text-shadow: 0 0 10px var(--accent-2); }
 
 /* 道具条 */
-.powups { display: flex; gap: 6px; flex-wrap: wrap; min-height: 0; }
+.powups {
+  display: flex; gap: 6px; flex-wrap: nowrap; justify-content: center;
+  min-height: 24px; overflow: hidden;
+}
 .powup {
-  display: inline-flex; align-items: center; gap: 5px;
-  padding: 4px 10px; border-radius: 99px; font-size: .7rem; font-weight: 700;
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 8px; border-radius: 99px; font-size: .68rem; font-weight: 700;
   background: rgba(0, 0, 0, .45); border: 1px solid var(--glass-line);
   animation: popIn .3s cubic-bezier(.2, 1.4, .4, 1);
 }
+.powup__name { display: none; }
 .powup__ico { width: 13px; height: 13px; flex: 0 0 auto; color: var(--accent); }
 .powup__time { font-variant-numeric: tabular-nums; opacity: .85; }
 @keyframes popIn { from { transform: scale(.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
