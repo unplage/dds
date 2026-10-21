@@ -6,16 +6,23 @@
 const BASE_PATH = self.location.pathname.replace(/[^/]+$/, '');
 // 构建带项目标识的缓存名称，避免多项目冲突
 // 例如 '/pwa1/' -> 'pwa-cache-pwa1-v1'
-const CACHE_NAME = `pwa-cache${BASE_PATH.replace(/\//g, '-')}v1`;
+const VERSION = 'v2';
+const CACHE_NAME = `pwa-cache${BASE_PATH.replace(/\//g, '-')}${VERSION}`;
 
 // 预缓存资源列表（全部使用相对于当前 sw.js 的路径）
 const PRECACHE_URLS = [
   BASE_PATH,                 // 例如 '/pwa1/'
   `${BASE_PATH}index.html`,
+  `${BASE_PATH}styles.css`,
+  `${BASE_PATH}app.js`,
   `${BASE_PATH}manifest.json`,
-  // 如果有图标，可以追加，例如：
-  // `${BASE_PATH}favicon.ico`,
-  // `${BASE_PATH}logo192.png`,
+  `${BASE_PATH}favicon.ico`,
+  `${BASE_PATH}icons/favicon.svg`,
+  `${BASE_PATH}icons/icon-192.png`,
+  `${BASE_PATH}icons/icon-512.png`,
+  `${BASE_PATH}icons/icon-maskable-192.png`,
+  `${BASE_PATH}icons/icon-maskable-512.png`,
+  `${BASE_PATH}icons/apple-touch-icon.png`,
 ];
 
 // 静态资源扩展名（用于判断是否缓存优先）
@@ -49,7 +56,7 @@ self.addEventListener('install', (event) => {
 
 // ---------- 4. 激活阶段（只清理当前项目的旧缓存） ----------
 self.addEventListener('activate', (event) => {
-  console.log('[SW] 激活中...');
+  console.log('[SW] 激活...');
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
@@ -93,11 +100,15 @@ self.addEventListener('fetch', (event) => {
             console.log('[SW] 离线模式，使用缓存页面:', url.pathname);
             return cachedResponse;
           }
-          // 连缓存都没有，返回自定义离线页（可预置 offline.html）
-          // 如果希望更美观，可以预缓存一个 offline.html 并在这里返回它
+          // 连缓存都没有，返回自定义离线页
           return new Response(
-            '<h1>📴 离线状态</h1><p>请检查网络连接后刷新页面。</p>',
-            { status: 503, statusText: 'Offline', headers: { 'Content-Type': 'text/html' } }
+            '<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8">' +
+            '<meta name="viewport" content="width=device-width,initial-scale=1">' +
+            '<title>离线</title><style>body{margin:0;height:100vh;display:grid;place-items:center;' +
+            'background:#0d2036;color:#fff;font-family:system-ui,sans-serif;text-align:center}' +
+            'h1{font-size:3rem;margin:0 0 8px}</style></head>' +
+            '<body><div><h1>📴</h1><p>当前离线，且尚未缓存该页面。<br>联网后再打开一次即可离线游玩。</p></div></body></html>',
+            { status: 503, statusText: 'Offline', headers: { 'Content-Type': 'text/html; charset=utf-8' } }
           );
         })
     );
@@ -118,7 +129,7 @@ self.addEventListener('fetch', (event) => {
           }
           return networkResponse;
         }).catch(() => {
-          // 完全离线且无缓存，返回空响应（可自定义）
+          // 完全离线且无缓存，返回空响应
           return new Response('', { status: 408 });
         });
       })
@@ -127,5 +138,9 @@ self.addEventListener('fetch', (event) => {
   }
 
   // ----- 5.3 其他请求（如 API）默认不缓存，直接走网络 -----
-  // （业务数据通常存储在 IndexedDB 中，不受影响）
+});
+
+// ---------- 6. 与页面通信：提示有新版本 ----------
+self.addEventListener('message', (event) => {
+  if (event.data === 'SKIP_WAITING') self.skipWaiting();
 });
