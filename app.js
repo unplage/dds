@@ -1760,7 +1760,8 @@
   function boot() {
     injectDefs();
     applyTheme(settings.theme);
-    state.difficulty = 'medium';
+    const activeDiff = document.querySelector('.chip-btn[data-difficulty].is-active');
+    state.difficulty = DIFFICULTY[activeDiff?.dataset.difficulty] ? activeDiff.dataset.difficulty : 'medium';
     buildBoard();
     bindSettings();
     bindEvents();
