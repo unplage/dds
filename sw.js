@@ -4,10 +4,14 @@
 // ---------- 1. 动态路径与缓存名称 ----------
 // 获取当前 sw.js 所在的目录路径（例如 '/pwa1/'）
 const BASE_PATH = self.location.pathname.replace(/[^/]+$/, '');
-// 构建带项目标识的缓存名称，避免多项目冲突
-// 例如 '/pwa1/' -> 'pwa-cache-pwa1-v1'
-const VERSION = 'v4';
-const CACHE_NAME = `pwa-cache${BASE_PATH.replace(/\//g, '-')}${VERSION}`;
+// 由自身路径推导项目标识（'/pwa1/' -> 'pwa1'，根目录 -> 'root'）
+const PROJECT = BASE_PATH.replace(/\//g, '') || 'root';
+// 缓存命名：pwa-cache-<项目>--v<版本>，只用本项目前缀做清理
+const VERSION = 'v5';
+const OWN_CACHE_PREFIX = `pwa-cache-${PROJECT}--`;
+const CACHE_NAME = `${OWN_CACHE_PREFIX}${VERSION}`;
+// 旧版命名（本项目 v4 及以前）仅清理这一条，避免留下垃圾缓存
+const LEGACY_CACHE_NAME = `pwa-cache${BASE_PATH.replace(/\//g, '-')}v4`;
 
 // 预缓存资源列表（全部使用相对于当前 sw.js 的路径）
 const PRECACHE_URLS = [
@@ -38,6 +42,16 @@ function isNavigateRequest(request) {
   return request.mode === 'navigate' || (request.method === 'GET' && request.destination === 'document');
 }
 
+// 只处理本项目作用域内的请求，避免把其它 PWA 的资源写进本项目缓存
+function isInScope(url) {
+  return url.pathname.startsWith(BASE_PATH);
+}
+
+// 缓存查找限定在本项目当前缓存内，避免误命中其它 PWA 的同名资源
+function matchOwnCache(request, options) {
+  return caches.open(CACHE_NAME).then(cache => cache.match(request, options));
+}
+
 // ---------- 3. 安装阶段 ----------
 self.addEventListener('install', (event) => {
   console.log('[SW] 安装中，BASE_PATH =', BASE_PATH);
@@ -61,9 +75,11 @@ self.addEventListener('activate', (event) => {
     caches.keys().then(cacheNames => {
       return Promise.all(
         cacheNames.map(cache => {
-          // 只删除以 'pwa-cache-' 开头且不属于当前项目的缓存
-          if (cache.startsWith('pwa-cache-') && cache !== CACHE_NAME) {
-            console.log('[SW] 删除旧缓存:', cache);
+          // 只删除本项目前缀的旧版本缓存，绝不碰其它 PWA 的缓存
+          const isOldOwnCache = cache.startsWith(OWN_CACHE_PREFIX) && cache !== CACHE_NAME;
+          const isLegacyOwnCache = cache === LEGACY_CACHE_NAME && cache !== CACHE_NAME;
+          if (isOldOwnCache || isLegacyOwnCache) {
+            console.log('[SW] 删除本项目旧缓存:', cache);
             return caches.delete(cache);
           }
         })
@@ -77,8 +93,8 @@ self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // 只处理同源 GET 请求
-  if (url.origin !== location.origin || request.method !== 'GET') {
+  // 只处理同源 GET 请求，且仅限本项目作用域
+  if (url.origin !== location.origin || request.method !== 'GET' || !isInScope(url)) {
     return;
   }
 
@@ -95,7 +111,7 @@ self.addEventListener('fetch', (event) => {
         })
         .catch(async () => {
           // 网络失败，尝试从缓存获取
-          const cachedResponse = await caches.match(request);
+          const cachedResponse = await matchOwnCache(request, { ignoreSearch: true });
           if (cachedResponse) {
             console.log('[SW] 离线模式，使用缓存页面:', url.pathname);
             return cachedResponse;
@@ -118,7 +134,7 @@ self.addEventListener('fetch', (event) => {
   // ----- 5.2 静态资源请求：缓存优先，未命中则网络请求并缓存 -----
   if (isStaticResource(url)) {
     event.respondWith(
-      caches.match(request).then(cachedResponse => {
+      matchOwnCache(request).then(cachedResponse => {
         if (cachedResponse) {
           return cachedResponse;
         }
